@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Democratic and Republican Senate odds under oil-price and Hormuz scenarios, with a static historical replay.">
+<title>PRISM · Senate control, Democrats vs. Republicans</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./assets/2015fce2ed9aa075b28112e15e05682d.css">
+<script src="./assets/21b939ea3e050ed2331c5ed025e8967e.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Spectral:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#fcfbf8}
+</style>
+</helmet>
+<div class="prism" style="font-family: 'IBM Plex Sans', Arial, sans-serif; color: #292820; background: #fcfbf8; min-height: 100%">
+
+<header class="masthead">
+  <img class="logo" src="./assets/9f34924a73ac1f66f94e5fa1d79ae7bf.png" alt="Butter" width="40" height="44">
+  <button type="button" class="howto" onClick="{{openTour}}">How it works</button>
+</header>
+
+<div class="page">
+  <main class="main">
+    <sc-if value="{{dataMissing}}" hint-placeholder-val="{{ false }}">
+      <p class="data-missing">The embedded Polymarket price file did not load, so no odds are shown. The page draws nothing from a live source.</p>
+    </sc-if>
+
+    <div class="intro">
+      <div>
+        <div class="eyebrow">United States · Senate control</div>
+        <h1 class="title">The Senate Race: By Scenario</h1>
+        <p class="standfirst">Odds for Senate control, Democrats vs. Republicans, under various scenarios.</p>
+      </div>
+    </div>
+
+    <section class="chart" aria-label="Overall Senate market, price history">
+      <div class="chart-head">
+        <div>
+          <h2 class="subject"><a href="{{base.eventUrl}}" target="_blank" rel="noopener noreferrer">{{base.title}} <span class="ext" aria-hidden="true">↗</span></a></h2>
+          <p class="board-meta">{{base.params}}</p>
+        </div>
+        <output class="chart-stamp">{{stamp}}</output>
+      </div>
+      <div class="chart-frame">
+        <div class="chart-plot main-plot" role="slider" tabindex="0" aria-label="Move through time" aria-valuemin="0" aria-valuemax="{{maxIndex}}" aria-valuenow="{{selected}}" aria-valuetext="{{stamp}}" onPointerMove="{{onChartMove}}" onPointerLeave="{{onChartLeave}}" onClick="{{onChartClick}}" onKeyDown="{{onChartKey}}">
+          <svg class="chart-svg" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+            <sc-for list="{{chart.grid}}" as="g" hint-placeholder-count="5"><line class="grid-line" x1="0" x2="1000" y1="{{g.y}}" y2="{{g.y}}"></line></sc-for>
+            <path class="line rep-line" d="{{chart.rPath}}"></path>
+            <path class="line dem-line" d="{{chart.dPath}}"></path>
+          </svg>
+          <span class="cursor" style="left: {{chart.cx}}" aria-hidden="true"></span>
+          <sc-if value="{{chart.hasPoint}}" hint-placeholder-val="{{ true }}">
+            <span class="dot dem" style="left: {{chart.cx}}; top: {{chart.dY}}" aria-hidden="true"></span>
+            <span class="dot rep" style="left: {{chart.cx}}; top: {{chart.rY}}" aria-hidden="true"></span>
+          </sc-if>
+          <sc-if value="{{chart.showCard}}" hint-placeholder-val="{{ false }}">
+            <div class="hover-card {{chart.flipClass}}" style="left: {{chart.cx}}" aria-hidden="true">
+              <div class="hc-stamp">{{stamp}}</div>
+              <div class="hc-row dem"><span>Democrats</span><b>{{chart.dLabel}}</b></div>
+              <div class="hc-row rep"><span>Republicans</span><b>{{chart.rLabel}}</b></div>
+              <div class="hc-hint">{{chart.hint}}</div>
+            </div>
+          </sc-if>
+        </div>
+        <div class="y-labels" aria-hidden="true"><sc-for list="{{chart.grid}}" as="g" hint-placeholder-count="5"><span style="top: {{g.pct}}">{{g.label}}</span></sc-for></div>
+      </div>
+      <div class="x-labels" aria-hidden="true"><sc-for list="{{chart.ticks}}" as="k" hint-placeholder-count="5"><span class="{{k.cls}}" style="left: {{k.pct}}">{{k.label}}</span></sc-for></div>
+      <span class="sr-only" role="status" aria-live="polite">{{announced}}</span>
+    </section>
+
+    <section class="comparison" aria-label="Senate control by party under each scenario">
+      <section class="board reference" id="board-overall" aria-label="{{base.title}}">
+        <div class="pair single">
+          <div class="base-lane" aria-hidden="true"><sc-if value="{{base.hasData}}" hint-placeholder-val="{{ true }}"><span class="base-line" style="left: {{base.lineX}}"></span></sc-if></div>
+          <div class="branch first">
+            <div class="branch-label"></div>
+            <div class="contest" role="group" aria-label="{{base.aria}}">
+              <sc-if value="{{base.hasData}}" hint-placeholder-val="{{ true }}">
+                <div class="bar-labels" aria-hidden="true"><span class="bar-label dem">Democrats <b>{{base.dPct}}</b></span><span class="bar-label rep"><b>{{base.rPct}}</b> {{base.rTag}}</span></div>
+                <span class="mid-line" aria-hidden="true"></span>
+                <div class="bar" aria-hidden="true"><span class="seg dem" style="width: {{base.dWidth}}"></span><span class="seg rep"></span></div>
+              </sc-if>
+              <sc-if value="{{base.noData}}" hint-placeholder-val="{{ false }}">
+                <div class="bar-labels" aria-hidden="true"><span class="bar-label na">Democrats <b>—</b></span><span class="bar-label na"><b>—</b> Republicans</span></div>
+                <div class="empty-track" aria-hidden="true">Unavailable</div>
+              </sc-if>
+            </div>
+            <div class="lead {{base.leadClass}}"><span class="lead-k">Lead</span><b>{{base.leadValue}}</b><small>{{base.leader}}</small></div>
+          </div>
+          <div class="gapcell note"></div>
+        </div>
+      </section>
+
+      <sc-for list="{{boards}}" as="b" hint-placeholder-count="4">
+      <sc-if value="{{b.visible}}" hint-placeholder-val="{{ true }}">
+      <section class="board {{b.openClass}}" id="{{b.anchor}}">
+        <div class="board-head">
+          <div>
+            <h3 class="board-title"><a href="{{b.url}}" target="_blank" rel="noopener noreferrer">{{b.title}} <span class="ext" aria-hidden="true">↗</span></a></h3>
+            <p class="board-meta">{{b.deadline}}</p>
+          </div>
+        </div>
+
+        <div class="pair">
+          <div class="base-lane" aria-hidden="true"><sc-if value="{{b.hasBase}}" hint-placeholder-val="{{ true }}"><span class="base-line" style="left: {{b.baseX}}"></span></sc-if></div>
+          <sc-for list="{{b.branches}}" as="br" hint-placeholder-count="2">
+          <div class="branch {{br.rowClass}}">
+            <div class="branch-label">
+              <span class="kicker">Scenario</span>
+              <span class="phrase">{{br.phrase}}</span>
+              <sc-if value="{{br.hasWeight}}" hint-placeholder-val="{{ true }}"><span class="branch-weight">{{br.weightText}} likely</span></sc-if>
+            </div>
+            <div class="contest" role="group" aria-label="{{br.aria}}">
+              <sc-if value="{{br.available}}" hint-placeholder-val="{{ true }}">
+                <div class="bar-labels" aria-hidden="true"><span class="bar-label dem">Democrats <b>{{br.dPct}}</b></span><span class="bar-label rep"><b>{{br.rPct}}</b> Republicans</span></div>
+              </sc-if>
+              <sc-if value="{{br.unavailable}}" hint-placeholder-val="{{ false }}">
+                <div class="bar-labels" aria-hidden="true"><span class="bar-label na">Democrats <b>—</b></span><span class="bar-label na"><b>—</b> Republicans</span></div>
+              </sc-if>
+              <span class="mid-line" aria-hidden="true"></span>
+              <sc-if value="{{br.available}}" hint-placeholder-val="{{ true }}">
+                <div class="bar" aria-hidden="true"><span class="seg dem" style="width: {{br.dWidth}}"></span><span class="seg rep"></span></div>
+              </sc-if>
+              <sc-if value="{{br.unavailable}}" hint-placeholder-val="{{ false }}">
+                <div class="empty-track" aria-hidden="true">{{br.note}}</div>
+              </sc-if>
+              <sc-if value="{{br.gap}}" hint-placeholder-val="{{ false }}">
+                <svg class="tie" aria-hidden="true"><line x1="{{br.tieX1}}" y1="52" x2="{{br.tieX1}}" y2="80" stroke="#6b4fa0" stroke-width="1.5" stroke-dasharray="3 2"></line><line x1="{{br.tieX2}}" y1="90" x2="{{br.tieX2}}" y2="118" stroke="#6b4fa0" stroke-width="1.5" stroke-dasharray="3 2"></line></svg>
+                <span class="gap-bar" style="left: {{br.railX}}; width: {{br.gapW}}" aria-hidden="true"></span>
+              </sc-if>
+            </div>
+            <div class="lead {{br.leadClass}}"><span class="lead-k">Lead</span><b>{{br.leadValue}}</b><small>{{br.leader}}</small></div>
+          </div>
+          </sc-for>
+          <div class="gapcell">
+            <span class="mobile-label">Gap</span>
+            <sc-if value="{{b.hasGap}}" hint-placeholder-val="{{ true }}">
+              <div class="gap-value">{{b.gapValue}}<small>pt gap</small></div>
+              <div class="gap-dir"><span class="dem">Democrats</span> down <span class="arrow" aria-hidden="true">↘</span><br>if <u>{{b.gapRow}}</u></div>
+            </sc-if>
+            <sc-if value="{{b.noGap}}" hint-placeholder-val="{{ false }}">
+              <div class="gap-value na">—</div>
+            </sc-if>
+          </div>
+        </div>
+
+        <button type="button" class="toggle" aria-expanded="{{b.open}}" onClick="{{b.toggle}}"><svg class="caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1.5 L7 5 L3 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{b.toggleLabel}}</button>
+
+        <sc-if value="{{b.open}}" hint-placeholder-val="{{ false }}">
+        <div class="detail">
+          <div class="detail-lead">
+            <p>{{b.rules}}</p>
+          </div>
+          <div class="quotes">
+            <sc-if value="{{b.latest}}" hint-placeholder-val="{{ true }}">
+              <div class="qrow"><span class="qh">Joint outcome · YES share</span><span class="qh qv">Bid</span><span class="qh qv">Ask</span><span class="qh qv">Midpoint</span></div>
+            </sc-if>
+            <sc-if value="{{b.historical}}" hint-placeholder-val="{{ false }}">
+              <div class="qrow history"><span class="qh">Joint outcome · YES share</span><span class="qh qv">Recorded price</span><span class="qh qv">Observed · ET</span></div>
+            </sc-if>
+            <sc-for list="{{b.quoteRows}}" as="q" hint-placeholder-count="4">
+              <sc-if value="{{q.latest}}" hint-placeholder-val="{{ true }}">
+                <div class="qrow"><a href="{{q.url}}" target="_blank" rel="noopener noreferrer">{{q.label}}</a><span class="qv">{{q.bid}}</span><span class="qv">{{q.ask}}</span><span class="qv">{{q.mid}}</span></div>
+              </sc-if>
+              <sc-if value="{{q.historical}}" hint-placeholder-val="{{ false }}">
+                <div class="qrow history"><a href="{{q.url}}" target="_blank" rel="noopener noreferrer">{{q.label}}</a><span class="qv">{{q.mid}}</span><span class="qv">{{q.observed}}</span></div>
+              </sc-if>
+            </sc-for>
+          </div>
+          <sc-for list="{{b.formulas}}" as="f" hint-placeholder-count="2"><p class="formula"><b>{{f.label}}:</b> {{f.text}}</p></sc-for>
+          <sc-for list="{{b.notes}}" as="n" hint-placeholder-count="3"><p class="quote-note">{{n.text}}</p></sc-for>
+          <p class="quote-note"><a href="{{b.rulesUrl}}" target="_blank" rel="noopener noreferrer">Full settlement rules</a> · <a href="{{b.dataUrl}}" target="_blank" rel="noopener noreferrer">Data source</a></p>
+        </div>
+        </sc-if>
+      </section>
+      </sc-if>
+      </sc-for>
+    </section>
+
+    <footer class="footer">
+      <span>{{sourceNote}}</span>
+      <span>Static replay · No live data connection</span>
+    </footer>
+  </main>
+</div>
+
+<sc-if value="{{compact}}" hint-placeholder-val="{{ false }}">
+<div class="mini">
+  <div class="mini-inner">
+    <div class="mini-head">
+      <span class="mini-title">{{base.title}}</span>
+      <span class="mini-values"><span class="dem">Democrats <b>{{chart.dLabel}}</b></span><span class="rep">Republicans <b>{{chart.rLabel}}</b></span></span>
+      <output class="mini-stamp">{{stamp}}</output>
+    </div>
+    <div class="chart-plot mini-plot" role="slider" tabindex="0" aria-label="Move through time" aria-valuemin="0" aria-valuemax="{{maxIndex}}" aria-valuenow="{{selected}}" aria-valuetext="{{stamp}}" onPointerMove="{{onChartMove}}" onPointerLeave="{{onChartLeave}}" onClick="{{onChartClick}}" onKeyDown="{{onChartKey}}">
+      <svg class="chart-svg" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+        <path class="line rep-line" d="{{chart.rPath}}"></path>
+        <path class="line dem-line" d="{{chart.dPath}}"></path>
+      </svg>
+      <span class="cursor" style="left: {{chart.cx}}" aria-hidden="true"></span>
+      <sc-if value="{{chart.hasPoint}}" hint-placeholder-val="{{ true }}">
+        <span class="dot dem" style="left: {{chart.cx}}; top: {{chart.dY}}" aria-hidden="true"></span>
+        <span class="dot rep" style="left: {{chart.cx}}; top: {{chart.rY}}" aria-hidden="true"></span>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{tour.open}}" hint-placeholder-val="{{ false }}">
+<div class="tour-backdrop" onClick="{{closeTour}}"></div>
+<div class="tour" role="dialog" aria-modal="true" aria-labelledby="tour-title" onKeyDown="{{tourKey}}">
+  <div class="tour-step">Step {{tour.n}} of {{tour.total}}</div>
+  <h2 class="tour-title" id="tour-title">{{tour.title}}</h2>
+  <p class="tour-body">{{tour.body}}</p>
+  <sc-if value="{{tour.s1}}" hint-placeholder-val="{{ true }}">
+    <div class="illus" aria-hidden="true">
+      <div class="ill-row">
+        <div class="ill-name hl"><span class="ill-kicker">Scenario</span>{{tour.ex.row1}}<span class="ill-likely">{{tour.ex.likely1}} likely</span></div>
+        <div class="ill-contest"><div class="ill-labels"><span class="dem">Democrats {{tour.ex.d1}}</span><span class="rep">{{tour.ex.r1}} Republicans</span></div><div class="ill-bar"><span class="seg dem" style="width: {{tour.ex.d1W}}"></span><span class="seg rep"></span></div></div>
+        <div class="ill-lead {{tour.ex.leadClass1}}">{{tour.ex.lead1}}<small>{{tour.ex.leader1}}</small></div>
+      </div>
+      <div class="ill-row">
+        <div class="ill-name hl"><span class="ill-kicker">Scenario</span>{{tour.ex.row2}}<span class="ill-likely">{{tour.ex.likely2}} likely</span></div>
+        <div class="ill-contest"><div class="ill-labels"><span class="dem">Democrats {{tour.ex.d2}}</span><span class="rep">{{tour.ex.r2}} Republicans</span></div><div class="ill-bar"><span class="seg dem" style="width: {{tour.ex.d2W}}"></span><span class="seg rep"></span></div></div>
+        <div class="ill-lead {{tour.ex.leadClass2}}">{{tour.ex.lead2}}<small>{{tour.ex.leader2}}</small></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{tour.s2}}" hint-placeholder-val="{{ false }}">
+    <div class="illus" aria-hidden="true">
+      <div class="ill-row">
+        <div class="ill-name"><span class="ill-kicker">Scenario</span>{{tour.ex.row1}}<span class="ill-likely">{{tour.ex.likely1}} likely</span></div>
+        <div class="ill-contest"><div class="ill-labels"><span class="dem">Democrats {{tour.ex.d1}}</span><span class="rep">{{tour.ex.r1}} Republicans</span></div><div class="ill-bar"><span class="seg dem" style="width: {{tour.ex.d1W}}"></span><span class="seg rep"></span></div></div>
+        <div class="ill-lead hl {{tour.ex.leadClass1}}"><span class="ill-kicker">Lead</span>{{tour.ex.lead1}}<small>{{tour.ex.leader1}}</small></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{tour.s3}}" hint-placeholder-val="{{ false }}">
+    <div class="illus" aria-hidden="true">
+      <div class="ill-pair">
+        <div class="ill-names"><div class="ill-name">{{tour.ex.row1}}</div><div class="ill-name">{{tour.ex.row2}}</div></div>
+        <div class="ill-stack">
+          <div class="ill-bar"><span class="seg dem" style="width: {{tour.ex.d1W}}"></span><span class="seg rep"></span></div>
+          <svg class="ill-tie" viewBox="0 0 100 26" preserveAspectRatio="none"><line x1="{{tour.ex.x1}}" y1="0" x2="{{tour.ex.x1}}" y2="9" stroke="#6b4fa0" stroke-width="1.5" stroke-dasharray="2 1.5" vector-effect="non-scaling-stroke"></line><line x1="{{tour.ex.x2}}" y1="17" x2="{{tour.ex.x2}}" y2="26" stroke="#6b4fa0" stroke-width="1.5" stroke-dasharray="2 1.5" vector-effect="non-scaling-stroke"></line></svg>
+          <span class="ill-gap hl" style="left: {{tour.ex.railX}}; width: {{tour.ex.gapW}}"></span>
+          <div class="ill-bar"><span class="seg dem" style="width: {{tour.ex.d2W}}"></span><span class="seg rep"></span></div>
+        </div>
+        <div class="ill-gapcell hl"><b>{{tour.ex.gap}}</b><small>pt gap</small></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{tour.s4}}" hint-placeholder-val="{{ false }}">
+    <div class="illus ill-chart" aria-hidden="true">
+      <svg class="chart-svg" viewBox="0 0 1000 200" preserveAspectRatio="none"><path class="line rep-line" d="{{chart.rPath}}"></path><path class="line dem-line" d="{{chart.dPath}}"></path></svg>
+      <span class="cursor" style="left: 58%"></span>
+      <span class="ill-card">Oct 24 · 2:00 PM ET<br>Click to pin</span>
+    </div>
+  </sc-if>
+  <div class="tour-actions">
+    <button type="button" class="tour-skip" onClick="{{closeTour}}">Not now</button>
+    <span class="tour-nav">
+      <sc-if value="{{tour.hasBack}}" hint-placeholder-val="{{ false }}"><button type="button" class="tour-back" onClick="{{tourBack}}">Back</button></sc-if>
+      <button type="button" class="tour-next" onClick="{{tourNext}}">{{tour.nextLabel}}</button>
+    </span>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1760}}'>
+// PRISM two-party view model. Same formulas as the shipped conditional-math.js; data comes from the embedded Polymarket file.
+var PRISM_TZ = 'America/New_York';
+var PRISM_FMT_DATE = new Intl.DateTimeFormat('en-US', {timeZone: PRISM_TZ, month: 'short', day: 'numeric', year: 'numeric'});
+var PRISM_FMT_SHORT = new Intl.DateTimeFormat('en-US', {timeZone: PRISM_TZ, month: 'short', day: 'numeric'});
+var PRISM_FMT_TIME = new Intl.DateTimeFormat('en-US', {timeZone: PRISM_TZ, hour: 'numeric', minute: '2-digit'});
+var PRISM_LEGS = ['trueD', 'trueR', 'falseD', 'falseR', 'none'];
+// Presentation labels: each board is a pair of scenarios, neither one "the condition".
+var PRISM_LABELS = {
+  '1177812': {board: 'Oil above or below $80', rows: ['Oil below $80', 'Oil at or above $80']},
+  '1177878': {board: 'Oil above or below $85', rows: ['Oil below $85', 'Oil at or above $85']},
+  '1177906': {board: 'Hormuz deal with oil below $80, or not', rows: ['Hormuz deal + oil below $80', 'No deal, or oil at or above $80']},
+  '1172100': {board: 'Hormuz agreement, or not', rows: ['Hormuz agreement', 'No agreement']}
+};
+function prismLabels(original) {
+  var l = PRISM_LABELS[original.id];
+  return l || {board: original.title, rows: [original.title, original.otherwise]};
+}
+
+function prismPct(p) { return Number.isFinite(p) ? (p * 100).toFixed(1) + '%' : '—'; }
+function prismCents(p) { return Number.isFinite(p) ? (p * 100).toFixed(2) + '¢' : '—'; }
+function prismSigned(x) { return Number.isFinite(x) ? (x < 0 ? '−' : '+') + Math.abs(x).toFixed(1) : '—'; }
+function prismStamp(t) { return PRISM_FMT_DATE.format(t * 1000) + ' · ' + PRISM_FMT_TIME.format(t * 1000) + ' ET'; }
+function prismShort(t) { return PRISM_FMT_SHORT.format(t * 1000); }
+function prismTime(t) { return PRISM_FMT_TIME.format(t * 1000) + ' ET'; }
+
+function prismQuoted(leg) {
+  return !!leg && Number.isFinite(leg.mid) && leg.mid >= 0 &&
+    Number.isFinite(leg.bid) && leg.bid > 0 &&
+    Number.isFinite(leg.ask) && leg.ask >= leg.bid;
+}
+// Latest snapshot: both legs must carry a two-sided quote. Mirrors conditional-math.js branch().
+function prismBranch(d, r) {
+  if (!prismQuoted(d) || !prismQuoted(r) || d.mid + r.mid <= 0) return null;
+  return {probability: d.mid / (d.mid + r.mid), mass: d.mid + r.mid,
+    range: [d.bid / (d.bid + r.ask), d.ask / (d.ask + r.bid)]};
+}
+// Recorded history: midpoints only, no spreads. Mirrors historicalBranch().
+function prismHistoricalBranch(d, r) {
+  if (!d || !r || !Number.isFinite(d.mid) || !Number.isFinite(r.mid) ||
+      d.mid < 0 || r.mid < 0 || d.mid + r.mid <= 0) return null;
+  return {probability: d.mid / (d.mid + r.mid), mass: d.mid + r.mid, range: null};
+}
+// Last observation at or before t; never a future price; stale beyond maxAge.
+function prismHistoryAt(series, t, maxAge) {
+  var unavailable = function (status) { return {price: null, observedAt: null, status: status}; };
+  if (!series) return unavailable('no-history');
+  if (t < series.launch) return unavailable('not-launched');
+  var points = series.points, low = 0, high = points.length;
+  while (low < high) { var middle = (low + high) >>> 1; if (points[middle][0] <= t) low = middle + 1; else high = middle; }
+  if (!low) return unavailable('no-history');
+  var observedAt = points[low - 1][0], price = points[low - 1][1];
+  if (t - observedAt > maxAge) return {price: null, observedAt: observedAt, status: 'stale'};
+  return {price: price, observedAt: observedAt, status: 'available'};
+}
+// Slider stops: endpoints, every hour, each launch, each board's first complete price.
+function prismTimes(data) {
+  var history = data.history, steps = {};
+  steps[history.fromTs] = true; steps[history.toTs] = true;
+  for (var t = Math.ceil(history.fromTs / 3600) * 3600; t < history.toTs; t += 3600) steps[t] = true;
+  data.rows.forEach(function (r) {
+    var series = PRISM_LEGS.filter(function (k) { return r[k]; }).map(function (k) { return history.markets[r[k].id]; });
+    series.forEach(function (s) { if (s.launch >= history.fromTs) steps[s.launch] = true; });
+    if (series.every(function (s) { return s.points.length; })) steps[Math.max.apply(null, series.map(function (s) { return s.points[0][0]; }))] = true;
+  });
+  return Object.keys(steps).map(Number).filter(function (t) { return t <= history.toTs; }).sort(function (a, b) { return a - b; });
+}
+function prismLegAt(history, leg, t, latest) {
+  if (!leg || latest) return leg;
+  var sample = prismHistoryAt(history.markets[leg.id], t, history.maxAgeSeconds);
+  return {id: leg.id, label: leg.label, url: leg.url, mid: sample.price, bid: null, ask: null, last: null,
+    observedAt: sample.observedAt, updatedAt: null, status: sample.status};
+}
+function prismReason(legs) {
+  var states = legs.filter(Boolean).map(function (l) { return l.status; });
+  if (states.indexOf('not-launched') >= 0) return 'Not launched';
+  if (states.indexOf('stale') >= 0) return 'History gap';
+  if (states.indexOf('no-history') >= 0) return 'Awaiting first prices';
+  return 'Unavailable';
+}
+// One two-party scenario row for display: D share, R share, who leads and by how much.
+function prismContest(key, phrase, result, note, weight) {
+  var available = !!result;
+  var d = available ? result.probability : null, r = available ? 1 - result.probability : null;
+  // Displayed Republican share is the complement of the displayed (rounded) Democratic share, so a pair always reads 100.0.
+  var dShown = available ? Number((d * 100).toFixed(1)) : null, rShown = available ? Number((100 - dShown).toFixed(1)) : null;
+  // Lead and gap are computed from the displayed shares so the arithmetic on the page reconciles.
+  var lead = available ? Number((dShown - rShown).toFixed(1)) : null;
+  var leader = !available ? '' : lead >= 0 ? 'Democrats' : 'Republicans';
+  return {
+    key: key, phrase: phrase, rowClass: key === 'met' ? 'first' : 'second', available: available, unavailable: !available, note: note || '',
+    hasWeight: Number.isFinite(weight), weightText: Number.isFinite(weight) ? prismPct(weight) : '',
+    naClass: available ? '' : 'na', leadClass: !available ? 'na' : (lead >= 0 ? 'dem' : 'rep'),
+    dShown: dShown, rShown: rShown,
+    dPct: available ? dShown.toFixed(1) + '%' : '—', rPct: available ? rShown.toFixed(1) + '%' : '—', dWidth: available ? (d * 100).toFixed(2) + '%' : '0%',
+    leadValue: available ? '+' + Math.abs(lead).toFixed(1) + ' pt' : '—', leader: leader,
+    leadIsD: available && lead >= 0, leadIsR: available && lead < 0,
+    splitX: available ? (d * 100).toFixed(2) + '%' : '50%',
+    aria: available ? phrase + ': Democrats ' + dShown.toFixed(1) + '%, Republicans ' + rShown.toFixed(1) + '%. ' + leader + ' lead by ' + Math.abs(lead).toFixed(1) + ' points.' : phrase + ': ' + (note || 'unavailable') + '.'
+  };
+}
+function prismBoard(data, original, t, latest, base, open, toggle) {
+  var history = data.history, r = {}, labels = prismLabels(original), baselineMid = base.mid;
+  Object.keys(original).forEach(function (k) { r[k] = original[k]; });
+  PRISM_LEGS.forEach(function (k) { r[k] = prismLegAt(history, original[k], t, latest); });
+  var calc = latest ? prismBranch : prismHistoricalBranch;
+  var met = calc(r.trueD, r.trueR), other = calc(r.falseD, r.falseR);
+  var legs = PRISM_LEGS.map(function (k) { return r[k]; }).filter(Boolean);
+  var total = legs.every(function (l) { return Number.isFinite(l.mid); }) ? legs.reduce(function (s, l) { return s + l.mid; }, 0) : null;
+  // Each row's share of its board's total price. An unsplit "none" contract still has a weight.
+  var metMass = met ? met.mass : null;
+  var otherMass = other ? other.mass : (r.none && Number.isFinite(r.none.mid) ? r.none.mid : null);
+  var weightOf = function (mass) { return Number.isFinite(mass) && total > 0 ? mass / total : null; };
+  var metWeight = weightOf(metMass), otherWeight = weightOf(otherMass);
+  var metState = met ? '' : prismReason([r.trueD, r.trueR]);
+  var otherNote = other ? '' : (!original.falseD ? 'No price available' : prismReason([r.falseD, r.falseR]));
+  var branches = [
+    prismContest('met', labels.rows[0], met, metState, metWeight),
+    prismContest('other', labels.rows[1], other, otherNote, otherWeight)
+  ];
+  // Gap in points between the two displayed Democratic shares (equivalently the two Republican shares).
+  var gap = met && other ? Number(Math.abs(branches[0].dShown - branches[1].dShown).toFixed(1)) : null;
+  // The gap bar and its dashed legs are drawn from the first row's cell into the gutter below it, joining the two splits.
+  var higherRow = gap === null ? '' : (met.probability >= other.probability ? labels.rows[0] : labels.rows[1]);
+  var lowerRow = gap === null ? '' : (met.probability >= other.probability ? labels.rows[1] : labels.rows[0]);
+  branches[0].gap = gap !== null; branches[0].gapText = gap !== null ? gap.toFixed(1) + ' pt gap' : '';
+  branches[0].tieX1 = branches[0].splitX; branches[0].tieX2 = branches[1].splitX;
+  branches[0].railX = gap !== null ? (Math.min(met.probability, other.probability) * 100).toFixed(2) + '%' : '0%';
+  branches[0].gapW = gap !== null ? (Math.abs(met.probability - other.probability) * 100).toFixed(2) + '%' : '0%';
+  branches[0].gapX = gap !== null ? ((met.probability + other.probability) * 50).toFixed(2) + '%' : '50%';
+  branches[1].gap = false; branches[1].gapText = ''; branches[1].tieX1 = '0%'; branches[1].tieX2 = '0%'; branches[1].railX = '0%'; branches[1].gapW = '0%'; branches[1].gapX = '50%';
+  if (gap !== null) branches[0].aria += ' Gap to ' + labels.rows[1] + ': ' + gap.toFixed(1) + ' points; Democrats run higher under ' + higherRow + '.';
+  var gapNote = gap === null ? '' : gap.toFixed(1) + ' pt gap between the two scenarios · Democrats run higher under ' + higherRow;
+  var gapValue = gap === null ? '—' : gap.toFixed(1);
+  var gapDir = gap === null ? '' : 'Democrats lower under ' + lowerRow;
+  var range = function (b) { return b && b.range ? prismPct(b.range[0]) + '–' + prismPct(b.range[1]) : 'unavailable'; };
+  var quoteRows = legs.map(function (l) {
+    return {label: l.label, url: l.url, bid: prismCents(l.bid), ask: prismCents(l.ask), mid: prismCents(l.mid),
+      latest: latest, historical: !latest,
+      observed: l.observedAt ? prismShort(l.observedAt) + ' · ' + prismTime(l.observedAt) : prismReason([l])};
+  });
+  var formulas = [];
+  if (met) formulas.push({label: labels.rows[0], text: prismCents(r.trueD.mid) + ' ÷ (' + prismCents(r.trueD.mid) + ' + ' + prismCents(r.trueR.mid) + ') = Democrats ' + prismPct(met.probability) + ' · Republicans ' + prismPct(1 - met.probability)});
+  if (other) formulas.push({label: labels.rows[1], text: prismCents(r.falseD.mid) + ' ÷ (' + prismCents(r.falseD.mid) + ' + ' + prismCents(r.falseR.mid) + ') = Democrats ' + prismPct(other.probability) + ' · Republicans ' + prismPct(1 - other.probability)});
+  if (gap !== null) formulas.push({label: 'Gap', text: 'Democrats ' + branches[0].dPct + ' under ' + labels.rows[0] + ' vs ' + branches[1].dPct + ' under ' + labels.rows[1] + ' = ' + gap.toFixed(1) + ' pt, from the displayed shares; Republicans move by the same amount the other way'});
+  var notes = [];
+  notes.push({text: latest
+    ? 'Bid/ask sensitivity of the Democratic share: ' + labels.rows[0] + ' ' + range(met) + '; ' + labels.rows[1] + ' ' + range(other) + '. These ranges reflect the quoted spread, not statistical confidence intervals or executable conditional orders.'
+    : 'Recorded historical prices at or before the selected time; no interpolation from future observations. Historical bid/ask spreads are not available. Prices more than two hours old are withheld.'});
+  if (Number.isFinite(total)) notes.push({text: 'How likely each scenario is, as this board prices it (its contracts’ share of the board total ' + prismCents(total) + '): ' + labels.rows[0] + ' ' + prismCents(metMass) + ' ÷ ' + prismCents(total) + ' = ' + prismPct(metWeight) + '; ' + labels.rows[1] + ' ' + prismCents(otherMass) + ' ÷ ' + prismCents(total) + ' = ' + prismPct(otherWeight) + '. Each board is normalized on its own; boards are not reconciled with one another.'});
+  notes.push({text: latest ? 'Underlying market update: ' + original.trueD.updatedAt + '. Snapshot retrieved ' + data.retrievedAt + '.'
+    : 'As of ' + prismStamp(t) + '. Historical prices captured ' + history.retrievedAt + '.'});
+  return {
+    id: original.id, anchor: 'board-' + original.id, title: labels.board, deadline: original.deadline,
+    stateText: metState, hasState: !!metState, visible: metState !== 'Not launched', hidden: metState === 'Not launched',
+    open: !!open, closed: !open, openClass: open ? 'open' : '', toggle: toggle, toggleLabel: open ? 'Hide prices and rules' : 'Show prices and rules',
+    branches: branches, hasBase: Number.isFinite(baselineMid), baseX: Number.isFinite(baselineMid) ? (baselineMid * 100).toFixed(2) + '%' : '50%',
+    hasGap: gap !== null, noGap: gap === null, gapNote: gapNote, gapValue: gapValue, gapDir: gapDir, gapRow: lowerRow,
+    rules: original.rules, url: original.url, rulesUrl: original.rulesUrl, dataUrl: latest ? original.api : history.source,
+    quoteRows: quoteRows, formulas: formulas, notes: notes, latest: latest, historical: !latest
+  };
+}
+function prismBaseline(data, t, latest) {
+  var d = prismLegAt(data.history, data.baseline, t, latest);
+  var rQuote = latest ? data.baselineR : null;
+  var dRaw = Number.isFinite(d.mid) ? d.mid : null;
+  var sum = latest && rQuote && dRaw !== null ? dRaw + rQuote.mid : null;
+  // Two-party split. At the final snapshot both quotes are normalized to 100; through the recorded history only the
+  // Democratic contract was captured, so its complement stands in for the Republican share.
+  var dMid = dRaw === null ? null : (sum ? dRaw / sum : dRaw);
+  var rMid = dMid === null ? null : 1 - dMid;
+  var hasData = dMid !== null;
+  var dShown = hasData ? Number((dMid * 100).toFixed(1)) : null, rShown = hasData ? Number((100 - dShown).toFixed(1)) : null;
+  var lead = hasData ? Number((dShown - rShown).toFixed(1)) : null;
+  var leader = !hasData ? '' : lead >= 0 ? 'Democrats' : 'Republicans';
+  return {
+    mid: dMid, hasData: hasData, noData: !hasData,
+    dPct: hasData ? dShown.toFixed(1) + '%' : '—', rPct: hasData ? rShown.toFixed(1) + '%' : '—', rTag: 'Republicans', dWidth: hasData ? (dMid * 100).toFixed(2) + '%' : '0%',
+    lineX: hasData ? (dMid * 100).toFixed(2) + '%' : '50%',
+    detail: latest ? 'Democrats bid ' + prismCents(d.bid) + ' / ask ' + prismCents(d.ask) + ' · Republicans bid ' + prismCents(rQuote.bid) + ' / ask ' + prismCents(rQuote.ask) : (d.observedAt ? 'Democratic contract recorded ' + prismTime(d.observedAt) : prismReason([d])),
+    rQuoted: !!rQuote, rImplied: !rQuote,
+    basis: latest ? 'Two-party split: the Democratic quote ' + prismCents(dRaw) + ' and Republican quote ' + prismCents(rQuote.mid) + ' (summing to ' + prismPct(sum) + ') normalized to 100' : 'Two-party split from the recorded Democratic contract; the Republican share is its complement',
+    leadValue: hasData ? '+' + Math.abs(lead).toFixed(1) + ' pt' : '—', leader: leader, leadClass: !hasData ? 'na' : (lead >= 0 ? 'dem' : 'rep'),
+    aria: hasData ? 'Overall Senate market, no condition, two-party split: Democrats ' + dShown.toFixed(1) + '%, Republicans ' + rShown.toFixed(1) + '%. ' + leader + ' lead by ' + Math.abs(lead).toFixed(1) + ' points.' : 'Overall Senate market: ' + prismReason([d]) + '.',
+    title: 'Which party will win the Senate in 2026?', params: 'Senate control · 2026 midterm election',
+    eventUrl: data.baseline.url.split('?')[0], dUrl: data.baseline.url, rUrl: data.baselineR ? data.baselineR.url : data.baseline.url
+  };
+}
+// Price-history chart of the overall market: the recorded Democratic contract and its complement. Static geometry, built once.
+function prismChartBase(data, times) {
+  var W = 1000, H = 200, padTop = 10, padBottom = 10, history = data.history;
+  var t0 = history.fromTs, t1 = history.toTs, series = history.markets[data.baseline.id].points;
+  var pts = series.filter(function (p) { return p[0] >= t0 && p[0] < t1; });
+  var before = series.filter(function (p) { return p[0] < t0; });
+  if (before.length) pts.unshift([t0, before[before.length - 1][1]]);
+  // The final point is the snapshot's two-party split, so the line meets the top row of the table.
+  var latestSplit = prismBaseline(data, t1, true);
+  if (latestSplit.hasData) pts.push([t1, latestSplit.mid]);
+  var lo = 1, hi = 0;
+  pts.forEach(function (p) { lo = Math.min(lo, p[1], 1 - p[1]); hi = Math.max(hi, p[1], 1 - p[1]); });
+  var yMin = Math.max(0, Math.floor((lo * 100 - 4) / 10) * 10), yMax = Math.min(100, Math.ceil((hi * 100 + 4) / 10) * 10);
+  var x = function (t) { return (t - t0) / (t1 - t0) * W; };
+  var y = function (p) { return padTop + (1 - (p * 100 - yMin) / (yMax - yMin)) * (H - padTop - padBottom); };
+  var path = function (f) { return pts.map(function (p, i) { return (i ? 'L' : 'M') + x(p[0]).toFixed(1) + ' ' + y(f(p[1])).toFixed(1); }).join(''); };
+  var grid = [];
+  for (var g = yMin; g <= yMax; g += 10) grid.push({y: y(g / 100).toFixed(1), pct: (y(g / 100) / H * 100).toFixed(2) + '%', label: g + '%'});
+  var ticks = [], day = 86400;
+  for (var t = t0; t < t1 - 2 * day; t += 5 * day) ticks.push({pct: (x(t) / W * 100).toFixed(2) + '%', label: prismShort(t), cls: t === t0 ? 'first' : ''});
+  ticks.push({pct: '100%', label: prismShort(t1), cls: 'last'});
+  return {W: W, H: H, x: x, y: y, dPath: path(function (p) { return p; }), rPath: path(function (p) { return 1 - p; }), grid: grid, ticks: ticks};
+}
+function prismChartAt(base, data, t, latest) {
+  var d = prismBaseline(data, t, latest).mid;
+  return {
+    dPath: base.dPath, rPath: base.rPath, grid: base.grid, ticks: base.ticks,
+    cx: (base.x(t) / base.W * 100).toFixed(2) + '%', hasPoint: d !== null,
+    dY: d === null ? '0%' : (base.y(d) / base.H * 100).toFixed(2) + '%', rY: d === null ? '0%' : (base.y(1 - d) / base.H * 100).toFixed(2) + '%',
+    dLabel: prismPct(d), rLabel: prismPct(d === null ? null : 1 - d),
+    rNote: ''
+  };
+}
+function prismEmptyView() {
+  return {dataMissing: true, dataReady: false, selected: 0, maxIndex: 0, latest: true, historical: false, stamp: '', progress: '0%',
+    launchLabel: '', latestLabel: '', modeNote: '', announcement: '', announced: '', base: {}, boards: [],
+    sourceNote: '', excludedTitle: '', excludedReason: '', excludedUrl: '#', pinned: false,
+    chart: {dPath: '', rPath: '', grid: [], ticks: [], cx: '100%', hasPoint: false, dY: '0px', rY: '0px', dLabel: '—', rLabel: '—', rNote: '', showCard: false, flipClass: '', hint: ''}, compact: false,
+    tour: {open: false, n: 0, total: 0, title: '', body: '', ex: {}, s1: false, s2: false, s3: false, s4: false, hasBack: false, nextLabel: ''},
+    openTour: function () {}, closeTour: function () {}, tourNext: function () {}, tourBack: function () {}, tourKey: function () {},
+    onChartMove: function () {}, onChartLeave: function () {}, onChartClick: function () {}, onChartKey: function () {}};
+}
+function prismView(data, times, selected, openMap, handlers, chartBase, pinned) {
+  var t = times[selected], latest = selected === times.length - 1, history = data.history;
+  var base = prismBaseline(data, t, latest);
+  var chart = chartBase ? prismChartAt(chartBase, data, t, latest) : null;
+  var boards = data.rows.map(function (r) {
+    return prismBoard(data, r, t, latest, base, openMap[r.id], handlers.toggle(r.id));
+  });
+  return {
+    dataMissing: false, dataReady: true,
+    selected: selected, maxIndex: times.length - 1, latest: latest, historical: !latest,
+    stamp: prismStamp(t), progress: (selected / (times.length - 1) * 100).toFixed(2) + '%',
+    launchLabel: 'Market launch · ' + prismShort(history.fromTs), latestLabel: 'Latest snapshot · ' + prismShort(history.toTs),
+    modeNote: latest ? 'Latest captured bid/ask midpoints · hover the chart to look back' : 'Historical prices · hourly sampling, with finer launch samples · no historical bid/ask spreads',
+    announcement: 'Showing odds as of ' + prismStamp(t),
+    pinned: !!pinned, base: base, boards: boards, chart: chart,
+    sourceNote: 'Source: Polymarket ' + (latest ? 'Gamma snapshot' : 'CLOB price history') + ' · as of ' + prismStamp(t),
+    excludedTitle: data.unavailable.title, excludedReason: data.unavailable.reason, excludedUrl: data.unavailable.url
+  };
+}
+
+class Component extends DCLogic {
+  // When the full chart scrolls off the top, a compact copy is fixed to the viewport so time can still be moved.
+  componentDidMount() {
+    var self = this, tries = 0;
+    var attach = function () {
+      var el = typeof document !== 'undefined' ? document.querySelector('.main-plot') : null;
+      if (!el) { if (tries++ < 10) setTimeout(attach, 300); return; }
+      if (typeof IntersectionObserver === 'undefined') return;
+      self._io = new IntersectionObserver(function (entries) {
+        var e = entries[0];
+        var compact = !e.isIntersecting && e.boundingClientRect.bottom < 0;
+        if (compact !== !!(self.state || {}).compact) self.setState({compact: compact});
+      }, {threshold: 0});
+      self._io.observe(el);
+    };
+    attach();
+  }
+  componentWillUnmount() { if (this._io) this._io.disconnect(); }
+  tourSeen() { try { return window.localStorage.getItem('prism-tour-seen') === '1'; } catch (e) { return true; } }
+  markTourSeen() { try { window.localStorage.setItem('prism-tour-seen', '1'); } catch (e) {} }
+  renderVals() {
+    var data = typeof PRISM_SENATE !== 'undefined' ? PRISM_SENATE : null;
+    if (!data || !data.history) return prismEmptyView();
+    if (!this._times) this._times = prismTimes(data);
+    if (!this._chart) this._chart = prismChartBase(data, this._times);
+    var times = this._times, st = this.state || {}, self = this, history = data.history;
+    var pinned = Number.isFinite(st.pinned) ? Math.max(0, Math.min(times.length - 1, st.pinned)) : null;
+    var hover = Number.isFinite(st.hover) ? Math.max(0, Math.min(times.length - 1, st.hover)) : null;
+    var selected = pinned !== null ? pinned : (hover !== null ? hover : times.length - 1);
+    var openMap = st.open || {};
+    // Pointer position on the chart → nearest recorded stop.
+    var indexAt = function (e) {
+      var rect = e.currentTarget.getBoundingClientRect();
+      var frac = rect.width > 0 ? Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) : 1;
+      var target = history.fromTs + frac * (history.toTs - history.fromTs), lo = 0, hi = times.length - 1;
+      while (lo < hi) { var mid = (lo + hi) >>> 1; if (times[mid] < target) lo = mid + 1; else hi = mid; }
+      if (lo > 0 && Math.abs(times[lo - 1] - target) < Math.abs(times[lo] - target)) lo--;
+      return lo;
+    };
+    var handlers = {
+      toggle: function (id) {
+        return function () {
+          var next = {};
+          Object.keys(openMap).forEach(function (k) { next[k] = openMap[k]; });
+          next[id] = !openMap[id];
+          self.setState({open: next});
+        };
+      }
+    };
+    var view = prismView(data, times, selected, openMap, handlers, this._chart, pinned !== null);
+    view.announced = st.announced || '';
+    view.compact = !!st.compact;
+    // First-visit walkthrough: scenario, lead, gap, time. Reopened from the link under the title.
+    if (!this._tourChecked) { this._tourChecked = true; if (!this.tourSeen()) setTimeout(function () { self.setState({tour: 0}); }, 0); }
+    var tourStep = Number.isFinite(st.tour) ? st.tour : null;
+    // The pictures in the walkthrough are drawn from the first board that has both scenarios priced.
+    var ex = null;
+    for (var bi = 0; bi < view.boards.length && !ex; bi++) {
+      var bd = view.boards[bi], b1 = bd.branches[0], b2 = bd.branches[1];
+      if (bd.hasGap) ex = {row1: b1.phrase, row2: b2.phrase, likely1: b1.weightText, likely2: b2.weightText,
+        d1: b1.dPct, r1: b1.rPct, d1W: b1.dWidth, lead1: b1.leadValue, leader1: b1.leader, leadClass1: b1.leadClass,
+        d2: b2.dPct, r2: b2.rPct, d2W: b2.dWidth, lead2: b2.leadValue, leader2: b2.leader, leadClass2: b2.leadClass,
+        gap: bd.gapValue, railX: b1.railX, gapW: b1.gapW, x1: parseFloat(b1.tieX1).toFixed(2), x2: parseFloat(b1.tieX2).toFixed(2)};
+    }
+    if (!ex) ex = {row1: 'Oil below $80', row2: 'Oil at or above $80', likely1: '—', likely2: '—', d1: '—', r1: '—', d1W: '50%', lead1: '—', leader1: '', leadClass1: 'na', d2: '—', r2: '—', d2W: '50%', lead2: '—', leader2: '', leadClass2: 'na', gap: '—', railX: '50%', gapW: '0%', x1: '50', x2: '50'};
+    var steps = [
+      {title: 'Every row is the same race', body: 'Democrats vs. Republicans for the Senate, if each scenario happens. The figure below shows how likely that scenario is.'},
+      {title: 'Lead shows who\u2019s ahead', body: 'If each scenario happens, \u2018Lead\u2019 shows who\u2019s in the lead and how much by.'},
+      {title: 'Gap shows what the scenario changes', body: 'How much the split moves between two scenarios. The purple bar represents the size of the gap.'},
+      {title: 'Go back in time', body: 'Move your cursor across the chart to see historical odds. Click to pin the time; click again to reset.'}
+    ];
+    var stepObj = tourStep === null ? null : steps[Math.max(0, Math.min(steps.length - 1, tourStep))];
+    view.tour = {open: stepObj !== null, n: tourStep === null ? 0 : tourStep + 1, total: steps.length,
+      title: stepObj ? stepObj.title : '', body: stepObj ? stepObj.body : '', ex: ex,
+      s1: tourStep === 0, s2: tourStep === 1, s3: tourStep === 2, s4: tourStep === 3,
+      hasBack: tourStep !== null && tourStep > 0, nextLabel: tourStep !== null && tourStep >= steps.length - 1 ? 'Got it' : 'Next'};
+    view.openTour = function () { self.setState({tour: 0}); };
+    view.closeTour = function () { self.markTourSeen(); self.setState({tour: null}); };
+    view.tourNext = function () { if (tourStep !== null && tourStep >= steps.length - 1) { self.markTourSeen(); self.setState({tour: null}); } else self.setState({tour: (tourStep || 0) + 1}); };
+    view.tourBack = function () { self.setState({tour: Math.max(0, (tourStep || 0) - 1)}); };
+    view.tourKey = function (e) { if (e.key === 'Escape') { e.preventDefault(); self.markTourSeen(); self.setState({tour: null}); } };
+    view.chart.showCard = pinned !== null || hover !== null;
+    view.chart.flipClass = parseFloat(view.chart.cx) > 58 ? 'flip' : '';
+    view.chart.hint = pinned !== null ? 'Pinned · click to release' : 'Click to pin';
+    view.onChartMove = function (e) { if (pinned !== null) return; var i = indexAt(e); if (i !== hover) self.setState({hover: i}); };
+    view.onChartLeave = function () { if (pinned === null && hover !== null) self.setState({hover: null}); };
+    view.onChartClick = function (e) {
+      if (pinned !== null) { self.setState({pinned: null, hover: null, announced: 'Back to the latest snapshot, ' + prismStamp(times[times.length - 1])}); return; }
+      var i = indexAt(e);
+      self.setState({pinned: i, announced: 'Pinned to ' + prismStamp(times[i])});
+    };
+    view.onChartKey = function (e) {
+      var k = e.key, next = null;
+      if (k === 'ArrowLeft' || k === 'ArrowDown') next = Math.max(0, selected - 1);
+      else if (k === 'ArrowRight' || k === 'ArrowUp') next = Math.min(times.length - 1, selected + 1);
+      else if (k === 'PageDown') next = Math.max(0, selected - 24);
+      else if (k === 'PageUp') next = Math.min(times.length - 1, selected + 24);
+      else if (k === 'Home') next = 0;
+      else if (k === 'End') next = times.length - 1;
+      else if (k === 'Escape') { e.preventDefault(); self.setState({pinned: null, hover: null, announced: 'Back to the latest snapshot'}); return; }
+      if (next === null) return;
+      e.preventDefault();
+      self.setState({pinned: next, announced: 'Pinned to ' + prismStamp(times[next])});
+    };
+    return view;
+  }
+}
+</script>
+</body>
+</html>
