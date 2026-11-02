@@ -210,7 +210,7 @@
 .tour .tour-skip { border: 0; color: #5f5f57; padding-left: 0; }
 .tour .tour-skip:hover { color: #292820; text-decoration: underline; text-underline-offset: 3px; }
 .tour .tour-next { background: #292820; color: #fcfbf8; }
-.footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid #deddd5; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; font-size: 11px; color: #5f5f57; }
+.footer { margin-top: 24px; padding-top: 14px; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; font-size: 11px; color: #5f5f57; }
 .data-missing { margin: 24px 0; padding: 16px; border: 1px dashed #c9c8bf; font-size: 13px; line-height: 1.5; }
 
 /* Narrower layouts, measured against the page itself so phone artboards and narrow windows behave alike */
