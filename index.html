@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Democratic and Republican Senate odds under oil-price and Hormuz scenarios, with a static historical replay.">
 <title>PRISM · Senate control, Democrats vs. Republicans</title>
+<script src="./assets/interaction-analytics.js"></script>
+<script src="./assets/plausible-analytics.js" data-tracker-src="https://plausible.io/js/pa-mFB5GMFqnAYoN-_Wyuk7P.js"></script>
 <script src="./vendor/react.js"></script>
 <script src="./vendor/react-dom.js"></script>
 <script src="./support.js"></script>
@@ -20,7 +22,7 @@
 body{margin:0;background:#fcfbf8}
 </style>
 </helmet>
-<div class="prism" style="font-family: 'IBM Plex Sans', Arial, sans-serif; color: #292820; background: #fcfbf8; min-height: 100%">
+<div class="prism" data-analytics-outcome="senate_control" style="font-family: 'IBM Plex Sans', Arial, sans-serif; color: #292820; background: #fcfbf8; min-height: 100%">
 
 <header class="masthead">
   <img class="logo" src="./assets/9f34924a73ac1f66f94e5fa1d79ae7bf.png" alt="Butter" width="40" height="44">
@@ -44,7 +46,7 @@ body{margin:0;background:#fcfbf8}
     <section class="chart" aria-label="Overall Senate market, price history">
       <div class="chart-head">
         <div>
-          <h2 class="subject"><a href="{{base.eventUrl}}" target="_blank" rel="noopener noreferrer">{{base.title}} <span class="ext" aria-hidden="true">↗</span></a></h2>
+          <h2 class="subject"><a href="{{base.eventUrl}}" data-analytics-placement="headline" target="_blank" rel="noopener noreferrer">{{base.title}} <span class="ext" aria-hidden="true">↗</span></a></h2>
           <p class="board-meta">{{base.params}}</p>
         </div>
         <output class="chart-stamp">{{stamp}}</output>
@@ -104,7 +106,7 @@ body{margin:0;background:#fcfbf8}
       <section class="board {{b.openClass}}" id="{{b.anchor}}">
         <div class="board-head">
           <div>
-            <h3 class="board-title"><a href="{{b.url}}" target="_blank" rel="noopener noreferrer">{{b.title}} <span class="ext" aria-hidden="true">↗</span></a></h3>
+            <h3 class="board-title"><a href="{{b.url}}" data-analytics-placement="scenario" target="_blank" rel="noopener noreferrer">{{b.title}} <span class="ext" aria-hidden="true">↗</span></a></h3>
             <p class="board-meta">{{b.deadline}}</p>
           </div>
         </div>
@@ -168,16 +170,16 @@ body{margin:0;background:#fcfbf8}
             </sc-if>
             <sc-for list="{{b.quoteRows}}" as="q" hint-placeholder-count="4">
               <sc-if value="{{q.latest}}" hint-placeholder-val="{{ true }}">
-                <div class="qrow"><a href="{{q.url}}" target="_blank" rel="noopener noreferrer">{{q.label}}</a><span class="qv">{{q.bid}}</span><span class="qv">{{q.ask}}</span><span class="qv">{{q.mid}}</span></div>
+                <div class="qrow"><a href="{{q.url}}" data-analytics-placement="price_detail" target="_blank" rel="noopener noreferrer">{{q.label}}</a><span class="qv">{{q.bid}}</span><span class="qv">{{q.ask}}</span><span class="qv">{{q.mid}}</span></div>
               </sc-if>
               <sc-if value="{{q.historical}}" hint-placeholder-val="{{ false }}">
-                <div class="qrow history"><a href="{{q.url}}" target="_blank" rel="noopener noreferrer">{{q.label}}</a><span class="qv">{{q.mid}}</span><span class="qv">{{q.observed}}</span></div>
+                <div class="qrow history"><a href="{{q.url}}" data-analytics-placement="price_detail" target="_blank" rel="noopener noreferrer">{{q.label}}</a><span class="qv">{{q.mid}}</span><span class="qv">{{q.observed}}</span></div>
               </sc-if>
             </sc-for>
           </div>
           <sc-for list="{{b.formulas}}" as="f" hint-placeholder-count="2"><p class="formula"><b>{{f.label}}:</b> {{f.text}}</p></sc-for>
           <sc-for list="{{b.notes}}" as="n" hint-placeholder-count="3"><p class="quote-note">{{n.text}}</p></sc-for>
-          <p class="quote-note"><a href="{{b.rulesUrl}}" target="_blank" rel="noopener noreferrer">Full settlement rules</a> · <a href="{{b.dataUrl}}" target="_blank" rel="noopener noreferrer">Data source</a></p>
+          <p class="quote-note"><a href="{{b.rulesUrl}}" data-analytics-placement="rules" target="_blank" rel="noopener noreferrer">Full settlement rules</a> · <a href="{{b.dataUrl}}" target="_blank" rel="noopener noreferrer">Data source</a></p>
         </div>
         </sc-if>
       </section>
@@ -611,11 +613,16 @@ class Component extends DCLogic {
     view.chart.showCard = pinned !== null || hover !== null;
     view.chart.flipClass = parseFloat(view.chart.cx) > 58 ? 'flip' : '';
     view.chart.hint = pinned !== null ? 'Pinned · click to release' : 'Click to pin';
-    view.onChartMove = function (e) { if (pinned !== null) return; var i = indexAt(e); if (i !== hover) self.setState({hover: i}); };
+    var trackTimeChange = function (next, input) {
+      if (next === selected) return;
+      try { if (window.conditionalAnalytics) window.conditionalAnalytics.scrubberUsed(input, 'senate_control'); } catch (error) {}
+    };
+    view.onChartMove = function (e) { if (pinned !== null) return; var i = indexAt(e); if (i !== hover) { trackTimeChange(i, 'pointer'); self.setState({hover: i}); } };
     view.onChartLeave = function () { if (pinned === null && hover !== null) self.setState({hover: null}); };
     view.onChartClick = function (e) {
       if (pinned !== null) { self.setState({pinned: null, hover: null, announced: 'Back to the latest snapshot, ' + prismStamp(times[times.length - 1])}); return; }
       var i = indexAt(e);
+      trackTimeChange(i, 'pointer');
       self.setState({pinned: i, announced: 'Pinned to ' + prismStamp(times[i])});
     };
     view.onChartKey = function (e) {
@@ -629,6 +636,7 @@ class Component extends DCLogic {
       else if (k === 'Escape') { e.preventDefault(); self.setState({pinned: null, hover: null, announced: 'Back to the latest snapshot'}); return; }
       if (next === null) return;
       e.preventDefault();
+      trackTimeChange(next, 'keyboard');
       self.setState({pinned: next, announced: 'Pinned to ' + prismStamp(times[next])});
     };
     return view;
