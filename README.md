@@ -8,7 +8,7 @@ Displays Democratic and Republican odds for Senate control, House control, and t
 
 ## Source
 
-Exported from the completed Claude Design artifact on 2026-11-03, including the compact overall-market readout, tinted scenario panels and stable-height empty snapshots. The responsive desktop export adapts to phone widths.
+Exported from the completed Claude Design artifact on 2026-11-03, including scenario overlays on the history chart, the compact odds readout, tinted scenario panels and stable-height empty snapshots. The responsive desktop export adapts to phone widths.
 
 Local integration adds page metadata and the analytics scripts and scrubber hooks described below. Preserve these when replacing the design export.
 

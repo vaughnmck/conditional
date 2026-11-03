@@ -49,10 +49,32 @@
 .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .dem-line { stroke: #2b559a; }
 .rep-line { stroke: #a8453a; }
+/* A scenario laid over the chart carries the weight; the overall market steps back to a thin, faint pair of lines */
+.line.base.faded { stroke-width: 1.25; stroke-opacity: .3; }
+/* The scenario lines are lifted a step toward the lighter end of each party hue: at this weight the base inks read nearly black */
+.line.ov { stroke-width: 2.25; }
+.line.ov.dem-line { stroke: #4071c6; }
+.line.ov.rep-line { stroke: #c45d4d; }
+.dot.ov.dem { background: #4071c6; box-shadow: 0 0 0 1px #4071c6; }
+.dot.ov.rep { background: #c45d4d; box-shadow: 0 0 0 1px #c45d4d; }
 .cursor { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid #292820; pointer-events: none; }
 .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid #fcfbf8; pointer-events: none; }
 .dot.dem { background: #2b559a; box-shadow: 0 0 0 1px #2b559a; }
 .dot.rep { background: #a8453a; box-shadow: 0 0 0 1px #a8453a; }
+.dot.faded { width: 7px; height: 7px; border-width: 1.5px; opacity: .4; }
+.dot.ov { width: 12px; height: 12px; }
+/* Scenario picker under the chart title */
+.chart-lead { min-width: 0; }
+.overlay-ctl { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin-top: 12px; }
+.ov-label { font-size: 9.5px; line-height: 14px; letter-spacing: 1.6px; text-transform: uppercase; color: #292820; font-weight: 600; white-space: nowrap; }
+.ov-select { appearance: none; -webkit-appearance: none; max-width: 100%; margin: 0; padding: 6px 30px 6px 10px; border: 1px solid #292820; border-radius: 0; color: #292820; cursor: pointer;
+  font: 500 12px/1.3 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: -.2px;
+  background: #fcfbf8 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5l3 3 3-3' fill='none' stroke='%23292820' stroke-width='1.5'/></svg>") no-repeat right 10px center; }
+.ov-select:hover { background-color: #faeccc; }
+.ov-select:focus-visible { outline: 2px solid #292820; outline-offset: 2px; box-shadow: 0 0 0 5px #faeccc; }
+.overlay-ctl.on .ov-select { background-color: #292820; color: #fcfbf8; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5l3 3 3-3' fill='none' stroke='%23fcfbf8' stroke-width='1.5'/></svg>"); }
+.overlay-ctl.on .ov-select:hover { background-color: #3d3c33; }
+.chart-tag { display: inline-block; margin-left: 8px; padding: 2px 5px 1px; background: #292820; color: #fcfbf8; font: 600 8.5px/1.2 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: .9px; text-transform: uppercase; vertical-align: 1px; }
 .hover-card { position: absolute; top: 10px; transform: translateX(12px); padding: 8px 10px 7px; background: #292820; color: #fcfbf8; font-size: 11px; line-height: 1.45; white-space: nowrap; pointer-events: none; z-index: 3; }
 .hover-card.flip { transform: translateX(calc(-100% - 12px)); }
 .hc-stamp { font: 500 11px/1.4 'IBM Plex Mono', 'Courier New', monospace; margin-bottom: 4px; }
@@ -62,6 +84,9 @@
 .hc-row small { font-size: 9.5px; color: #c9c8bf; }
 .hc-row.dem { color: #a9c0e8; }
 .hc-row.rep { color: #e6aa9f; }
+.hc-k { margin: 2px 0 1px; font-size: 9px; line-height: 1.4; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; color: #fcfbf8; }
+.hc-k.faint { margin-top: 6px; color: #a9a89f; }
+.hc-row.faint { opacity: .55; }
 .hc-hint { margin-top: 5px; font-size: 10px; color: #c9c8bf; letter-spacing: .3px; }
 /* Compact strip fixed to the viewport once the full chart has scrolled off the top */
 .mini { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(252, 251, 248, .96); border-bottom: 1px solid #292820; box-shadow: 0 1px 0 #fcfbf8; }
@@ -81,19 +106,23 @@
 .x-labels span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
 .x-labels span.first { transform: none; }
 .x-labels span.last { transform: translateX(-100%); }
-/* The overall market as a compact readout beside the chart title: label and stamp, the split, the lead */
+/* The odds on the chart, read out beside its title: the two shares at the gap figure's size, a slim bar, the moment underneath */
 .chart-head { align-items: flex-start; }
-.readout { flex: none; width: 340px; }
-.ro-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px; }
-.ro-k { font-size: 9.5px; line-height: 14px; letter-spacing: 1.6px; text-transform: uppercase; color: #292820; font-weight: 600; white-space: nowrap; }
-.ro-bar { position: relative; height: 42px; }
-.ro-bar .bar-labels { top: 0; }
-.ro-bar .bar, .ro-bar .empty-track { top: 28px; height: 12px; }
-.ro-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 7px; font-size: 10.5px; line-height: 1.3; color: #5f5f57; }
-.ro-lead { font: 500 10.5px/1.3 'IBM Plex Mono', 'Courier New', monospace; white-space: nowrap; }
-.ro-lead b { color: #2b559a; }
+.readout { flex: none; width: 360px; }
+.ro-bar { position: relative; height: 48px; }
+.ro-bar .bar-labels { top: 0; line-height: 32px; align-items: baseline; }
+.ro-bar .bar-label { gap: 8px; }
+.ro-bar .bar-label b { font: 500 30px/32px 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: -1px; }
+.ro-bar .bar, .ro-bar .empty-track { top: 42px; height: 6px; }
+.ro-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 8px; font-size: 10.5px; line-height: 1.3; color: #5f5f57; }
+.ro-foot .chart-stamp { font-size: 11.5px; line-height: 1.3; }
 .ro-note { white-space: nowrap; }
+.ro-note b { font: 500 10.5px/1.3 'IBM Plex Mono', 'Courier New', monospace; color: #5f5f57; }
 .ro-note .swatch { display: inline-block; width: 14px; border-top: 1.5px dashed #a9a89f; vertical-align: 3px; margin-right: 5px; }
+.ro-note .swatch.faint { border-top: 1.5px solid #c9c8bf; }
+/* The scenario on the chart, named above its split */
+.ro-scn { margin: 0 0 4px; font-size: 13px; line-height: 1.3; font-weight: 600; color: #292820; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ro-scn-k { font: 500 9.5px/14px 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: 1.2px; text-transform: uppercase; color: #5f5f57; margin-right: 7px; }
 .history-note { margin: 8px 0 0; font-size: 11px; line-height: 1.5; color: #5f5f57; }
 
 /* Subject, legend, column heads */
@@ -110,7 +139,7 @@
 .key.base { width: 0; height: 14px; border-left: 1.5px dashed #6f6f66; background: none; }
 .key.gap { width: 16px; height: 6px; background: #6b4fa0; }
 /* Each scenario market sits on its own tinted panel; the overall market stays on paper above them, under its ink rule */
-.comparison { --cols: minmax(160px, 1fr) minmax(300px, 3fr) 84px 164px; --gap: 18px; }
+.comparison { --cols: minmax(160px, 1fr) minmax(300px, 3fr) 164px; --gap: 18px; }
 
 /* One board: title row, two branch rows, scenario effect spanning both */
 .board { background: #f2f1eb; padding: 18px 20px 14px; margin-bottom: 14px; }
@@ -128,10 +157,10 @@
 .toggle:hover { color: #292820; text-decoration: underline; text-underline-offset: 3px; }
 .toggle[aria-expanded="true"] { color: #292820; box-shadow: inset 0 -7px 0 #faeccc; }
 .toggle[aria-expanded="true"] .caret { transform: rotate(90deg); }
-/* Two 80 px rows. Row one carries its figures above the bar, row two below it, so the lane between the bars holds only the gap. */
+/* Two 80 px rows: label, contest, and the gap cell spanning both. Row one carries its figures above the bar, row two below it, so the lane between the bars holds only the gap. */
 .pair { display: grid; grid-template-columns: var(--cols); grid-template-rows: 80px 80px; column-gap: var(--gap); align-items: center; }
 .pair.single { grid-template-rows: 80px; }
-.branch { display: grid; grid-template-columns: subgrid; grid-column: 1 / 4; align-items: center; }
+.branch { display: grid; grid-template-columns: subgrid; grid-column: 1 / 3; align-items: center; }
 .branch.first { grid-row: 1; }
 .branch.second { grid-row: 2; }
 /* Scenario labels: a fork rule joins Either … / Or …; shared words go grey, the words that differ stay heavy; the likelier scenario in full weight */
@@ -170,14 +199,7 @@
 .base-line { position: absolute; top: -12px; bottom: -12px; border-left: 1.5px dashed #a9a89f; }
 .board.open .base-line { bottom: -12px; }
 .board.reference .base-line { top: 52px; bottom: -10px; }
-.lead { text-align: right; font: 500 13px/1.2 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: -.3px; color: #5f5f57; }
-.lead b { font-weight: 500; }
-.lead.na { font-weight: 400; }
-.lead small { display: block; font: 10px/1.3 'IBM Plex Sans', Arial, sans-serif; letter-spacing: .3px; margin-top: 3px; min-height: 13px; }
-.lead.dem small { color: #2b559a; }
-.lead.rep small { color: #a8453a; }
-.lead-k { display: block; font: 500 9.5px/1.3 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: #5f5f57; margin-bottom: 2px; }
-.gapcell { grid-column: 4; grid-row: 1 / span 2; align-self: start; margin-top: 44px; min-height: 72px; padding-left: 18px; border-left: 1px solid #deddd5; }
+.gapcell { grid-column: 3; grid-row: 1 / span 2; align-self: start; margin-top: 44px; min-height: 72px; padding-left: 18px; border-left: 1px solid #deddd5; }
 .pair.single .gapcell { grid-row: 1; }
 .gapcell.note { border-left: 0; }
 .gap-value { font: 500 30px/1.1 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: -1px; color: #6b4fa0; display: flex; align-items: baseline; gap: 6px; }
@@ -215,7 +237,7 @@
 .tour { width: min(520px, calc(100% - 32px)); }
 .illus { margin: 14px 0 0; padding: 14px 16px; background: #f2f1eb; display: flex; flex-direction: column; gap: 14px; }
 .hl { outline: 2px solid #6b4fa0; outline-offset: 5px; }
-.ill-row { display: grid; grid-template-columns: 112px minmax(0, 1fr) 70px; column-gap: 16px; align-items: center; }
+.ill-row { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: 16px; align-items: center; }
 .ill-name { font-size: 11px; line-height: 1.3; font-weight: 500; display: flex; flex-direction: column; gap: 1px; border-left: 1.5px solid #292820; padding-left: 7px; }
 .ill-kicker { font-size: 8px; letter-spacing: 1.2px; text-transform: uppercase; color: #292820; font-weight: 600; }
 .ill-likely { font-size: 9px; color: #5f5f57; font-weight: 400; display: flex; align-items: center; gap: 5px; }
@@ -226,11 +248,6 @@
 .ill-bar { display: flex; gap: 2px; height: 10px; }
 .ill-bar .seg.dem { }
 .ill-bar .seg.rep { }
-.ill-lead { text-align: right; font: 500 11px/1.2 'IBM Plex Mono', 'Courier New', monospace; color: #5f5f57; display: flex; flex-direction: column; gap: 1px; }
-.ill-lead small { font: 9px/1.2 'IBM Plex Sans', Arial, sans-serif; }
-.ill-lead.dem small { color: #2b559a; }
-.ill-lead.rep small { color: #a8453a; }
-.ill-lead .ill-kicker { text-align: right; }
 .ill-pair { display: grid; grid-template-columns: 112px minmax(0, 1fr) 70px; column-gap: 16px; align-items: center; }
 .ill-names { display: flex; flex-direction: column; justify-content: space-between; height: 46px; }
 .ill-names .ill-name { font-weight: 500; }
@@ -257,9 +274,10 @@
 @container page (max-width: 900px) {
   .masthead { padding: 20px 24px 16px; }
   .main { padding: 25px 24px; }
-  .comparison { --cols: minmax(130px, 1fr) minmax(200px, 2.2fr) 70px 128px; --gap: 12px; }
+  .comparison { --cols: minmax(130px, 1fr) minmax(200px, 2.2fr) 128px; --gap: 12px; }
   .gap-value { font-size: 26px; }
   .bar-label b { font-size: 16px; }
+  .ro-bar .bar-label b { font-size: 26px; }
   .title { font-size: 35px; }
 }
 @container page (max-width: 680px) {
@@ -286,27 +304,28 @@
   .chart-frame { grid-template-columns: minmax(0, 1fr) 38px; }
   .x-labels { margin-right: 38px; }
   .readout { width: 100%; }
+  .ro-bar { height: 42px; }
+  .ro-bar .bar-labels { line-height: 26px; }
+  .ro-bar .bar-label b { font-size: 24px; line-height: 26px; letter-spacing: -.8px; }
+  .ro-bar .bar, .ro-bar .empty-track { top: 36px; }
+  .chart-lead { width: 100%; }
+  .overlay-ctl { margin-top: 10px; }
+  .ov-select { flex: 1 1 100%; width: 100%; }
   .legend { gap: 8px 14px; font-size: 11px; }
   .board-meta { font-size: 10.5px; }
   .board { padding: 14px 14px 12px; margin-bottom: 12px; }
   .board.reference { padding: 10px 0 8px; }
   .meter { width: 56px; }
   /* Phone: scenario line, bar, bar, scenario line. The two 80 px bar rows stay adjacent so the gap bar and its legs survive. */
-  .pair { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 80px 80px auto auto; column-gap: 14px; row-gap: 0; align-items: start; }
+  .pair { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 80px 80px auto auto; column-gap: 0; row-gap: 0; align-items: start; }
   .pair.single { grid-template-rows: auto 80px auto; }
   .branch { display: contents; }
   .branch .branch-label { padding: 8px 0 2px 10px; gap: 2px; flex-direction: column; align-self: end; }
   .branch.first .branch-label { grid-column: 1; grid-row: 1; }
-  .branch.first .lead { grid-column: 2; grid-row: 1; }
   .branch.first .contest { grid-column: 1 / -1; grid-row: 2; }
   .branch.second .contest { grid-column: 1 / -1; grid-row: 3; }
   .branch.second .branch-label { grid-column: 1; grid-row: 4; padding: 2px 0 8px 10px; align-self: start; }
-  .branch.second .lead { grid-column: 2; grid-row: 4; }
   .phrase { font-size: 13px; }
-  .lead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: flex-end; gap: 0 5px; font-size: 12px; padding: 8px 0 2px; align-self: end; }
-  .branch.second .lead { padding: 2px 0 8px; align-self: start; }
-  .lead-k { display: inline; margin: 0; }
-  .lead small { display: inline; margin: 0; }
   .contest { height: 80px; }
   .bar-labels { gap: 6px; font-size: 10px; }
   .bar-label { gap: 4px; }
