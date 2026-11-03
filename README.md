@@ -1,14 +1,16 @@
 # Conditional Odds
 
-A static export of the Butter / PRISM Senate conditional-odds widget.
+A static export of the Butter election scenario widget.
 
 [Open the widget](https://vaughnmck.github.io/conditional/).
 
-Displays Democratic and Republican Senate control odds under oil-price and Hormuz scenarios, with an interactive historical time scrubber. Market data is embedded; no live market API integration.
+Displays Democratic and Republican odds for Senate control, House control, and the Texas, Michigan and Iowa Senate races under market-specific scenarios, with an interactive historical time scrubber. Market data is embedded; no live market API integration.
 
 ## Source
 
-Exported from the latest completed Claude Design artifact on 2026-11-02. This publication contains the Senate widget; the five-outcome expansion is a separate work in progress.
+Exported from the completed Claude Design artifact on 2026-11-03, including the compact overall-market readout, tinted scenario panels and stable-height empty snapshots. The responsive desktop export adapts to phone widths.
+
+Local integration adds page metadata and the analytics scripts and scrubber hooks described below. Preserve these when replacing the design export.
 
 
 ## Run locally

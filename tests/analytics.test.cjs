@@ -23,8 +23,9 @@ function link(href, placement = 'scenario') {
   return { closest: selector => selector === 'a[href]' ? anchor : null };
 }
 function component(env) {
-  vm.runInContext(fs.readFileSync(path.join(root, 'assets/21b939ea3e050ed2331c5ed025e8967e.js'), 'utf8'), env.context);
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const dataScript = html.match(/<script src="\.\/(assets\/[a-f0-9]+\.js)"><\/script>/)[1];
+  vm.runInContext(fs.readFileSync(path.join(root, dataScript), 'utf8'), env.context);
   const script = html.match(/<script[^>]*data-dc-script[^>]*>([\s\S]*?)<\/script>/)[1];
   vm.runInContext(script + '\nglobalThis.Widget = Component;', env.context);
   return new env.context.Widget();
