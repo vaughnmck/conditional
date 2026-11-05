@@ -114,9 +114,10 @@
 .ro-bar .bar-label { gap: 8px; }
 .ro-bar .bar-label b { font: 500 30px/32px 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: -1px; }
 .ro-bar .bar, .ro-bar .empty-track { top: 42px; height: 6px; }
-.ro-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 8px; font-size: 10.5px; line-height: 1.3; color: #5f5f57; }
-.ro-foot .chart-stamp { font-size: 11.5px; line-height: 1.3; }
-.ro-note { white-space: nowrap; }
+/* One line, always: the stamp never wraps and the note truncates rather than drop to a second line, so the block's height holds as the cursor moves */
+.ro-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 8px; height: 15px; font-size: 10.5px; line-height: 15px; color: #5f5f57; white-space: nowrap; }
+.ro-foot .chart-stamp { flex: none; font-size: 11.5px; line-height: 15px; white-space: nowrap; }
+.ro-note { flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ro-note b { font: 500 10.5px/1.3 'IBM Plex Mono', 'Courier New', monospace; color: #5f5f57; }
 .ro-note .swatch { display: inline-block; width: 14px; border-top: 1.5px dashed #a9a89f; vertical-align: 3px; margin-right: 5px; }
 .ro-note .swatch.faint { border-top: 1.5px solid #c9c8bf; }
@@ -292,7 +293,6 @@
   .venue-tag { margin-left: 6px; }
   .board-head { flex-wrap: wrap; gap: 4px 12px; }
   .ref-note { margin-top: 0; text-align: left; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
-  .ro-foot { flex-wrap: wrap; }
   .intro { display: block; }
   .title { font-size: 34px; }
   .standfirst { font-size: 14px; }
